@@ -1,0 +1,99 @@
+﻿@page "/"
+@inject IJSRuntime JsRuntime
+
+<div class="row page-row" style="padding: 1rem 0rem; align-items:center;">
+    <button class="btn btn-outline-danger" style="font-size: 2rem" @onclick="ChangeWorkout">@("Current workout: " + char.ToUpper(workoutLetter))</button>
+    &nbsp;&nbsp;&nbsp;
+    <span style="font-size: 4rem; font-weight: bold; color: white;">@(currentMinutes + ":" + currentSeconds)</span>
+</div>
+
+<div class="row page-row">
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "11"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "12"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "13"]"></ExercisePreview>
+</div>
+
+<div class="row page-row">
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "21"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "22"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "23"]"></ExercisePreview>
+</div>
+
+<div class="row page-row">
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "31"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "32"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "33"]"></ExercisePreview>
+</div>
+
+<div class="row page-row">
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "41"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "42"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "43"]"></ExercisePreview>
+</div>
+
+<div class="row page-row">
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "51"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "52"]"></ExercisePreview>
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "53"]"></ExercisePreview>
+</div>
+
+<div class="row page-row">
+    <ExercisePreview Val="@Exercise.AllExercises[workoutLetter + "6"]"></ExercisePreview>
+</div>
+
+
+@code {
+    private char workoutLetter = 'a';
+    private float timerFrom = 0;
+    private int currentSeconds = 0;
+    private int currentMinutes = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        /// Hookup any needed events
+        var dotNetReference = DotNetObjectReference.Create(this);
+        await JsRuntime.InvokeVoidAsync("hookInputEvents", dotNetReference);
+        await JsRuntime.InvokeVoidAsync("anim.start", dotNetReference);
+    }
+
+    [JSInvokable("eventRequestAnimationFrame")]
+    public async void MainLoop(float timeStamp)
+    {
+        if(timerFrom == 0)
+        {
+            timerFrom = timeStamp;
+            currentSeconds = 0;
+            currentMinutes = 0;
+            StateHasChanged();
+        }
+        else
+        {
+            int prevSeconds = currentSeconds;
+
+            currentSeconds = ((int)(timeStamp - timerFrom) / 1000) % 60;
+            currentMinutes = ((int)(timeStamp - timerFrom) / 1000) / 60;
+
+            if(prevSeconds != currentSeconds)
+            {
+                StateHasChanged();
+            }
+        }
+
+        await Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public async Task KeyDown(string key)
+    {
+        timerFrom = 0;
+
+        await Task.CompletedTask;
+    }
+
+
+    private void ChangeWorkout()
+    {
+        workoutLetter = workoutLetter.CompareTo('a') == 0 ? 'b' : 'a';
+        StateHasChanged();
+    }
+}

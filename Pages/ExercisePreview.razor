@@ -1,0 +1,21 @@
+﻿<div class="ex-con" @onclick="ExerciseClicked" style="@("cursor: " + (Val.Variations.Length <= 1 ? "auto" : "pointer"))">
+    <img class="ex-img" src="@(Val.Variations[curVar].Address)" />
+    <span>@Val.Variations[curVar].Title</span>
+</div>
+@code {
+    private Exercise _val;
+
+    [Parameter] public Exercise Val {
+        get { return _val; }
+        set { _val = value; curVar %= value.Variations.Length; }
+    }
+
+    private int curVar = 0;
+
+    private void ExerciseClicked()
+    {
+        curVar++;
+        curVar %= Val.Variations.Length;
+        StateHasChanged();
+    }
+}
