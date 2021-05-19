@@ -2,7 +2,6 @@
 
 .page-row {
     display: flex;
-    height: 14%;
 }
 
 .ex-con > span {
@@ -14,9 +13,11 @@
     right: 0;
     margin: 0rem 0.5rem;
 }
+
 .ex-con {
     height: 100%;
     position: relative;
+    height: 12rem;
 }
 
 .ex-img {
